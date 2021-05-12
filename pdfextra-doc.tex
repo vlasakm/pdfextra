@@ -1,0 +1,684 @@
+% vim: tw=80
+\load [doc, pdfextra]
+\catcode`\.=11
+
+\hyperlinks\Green\Green
+
+% table notes (http://petr.olsak.net/optex/optex-tricks.html#tnote)
+\newcount\tnotenum
+\def\tnotelist{}
+\def\tnote#1{\incr\tnotenum $^{\rm\_romannumeral\tnotenum}$\global\addto\tnotelist{{#1}}}
+\def\tnoteprint{\typoscale[920/920]\par \tnotenum=0
+   \ea\foreach\tnotelist
+     \do{\advance\tnotenum by1 \par $^{\rm\_romannumeral\tnotenum}$##1 }\par
+   \global\tnotenum=0 \gdef\tnotelist{}%
+}
+
+% use `\hlink` instead of OpTeX `\*link` s
+\protected\def\_link[#1]#2#3{\hlink[#1]{#3}}
+\protected\def\_ilink[#1]#2{\hlink[#1]{#2}}
+\protected\def\_ulink[#1]#2{\hlink[url:#1]{#2}}
+\public \link \ilink \ulink ;
+
+\let\_cslinkcolor\Blue
+
+% allow hyperlinking of \OpTeX's control sequences (see doc.opm)
+\let\_pdfextra_opdocaction\_pdfextra_urlaction
+\let\_pdfextra_opdoclinkcolor\Blue
+\def\_Xindex#1#2{\sdef{,#1}{}\slet{el:#1}{optexdoclink}}
+\def\optexdoclink{\hlink[opdoc:\optexdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
+\def\optexdocurl{http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf}
+\isfile{optex-doc.eref}\iftrue \input{optex-doc.eref}\fi
+
+\insertoutline{PDF extra}
+\tit PDF extra -- extra PDF features for \OpTeX/
+
+\hfill Version \_pdfextra_version
+
+\centerline{\it Michal Vlasák, 2021}
+\bigskip
+
+\noindent
+`PDFextra` is a third party package for \OpTeX/. It aims to provide access to
+more advanced PDF features, which are currently not supported in \OpTeX/ --
+especially interactive and multimedia features. The development is hosted at
+\url{https://github.com/vlasakm/pdfextra}.
+
+In the spirit of \OpTeX/ you may use these macros in any form you want. Either
+by installing this package and doing `\load[pdfextra]` in \OpTeX/, or just by
+copying some useful parts of this package into your documents / packages.
+\OpTeX/ namespacing is used, but it can be easily stripped, if you wish to
+incorporate these macros into other macro packages. The code currently depends
+on \LuaTeX/, but mostly uses only pdf\TeX/ primitives and a few simple macros
+from \OpTeX/.
+
+User documentation (`pdfextra-doc.tex`) and technical documentation interleaved
+with source code (`pdfextra.opm`) are all typeset in this PDF file. Some
+examples of usage are in the user documentation, but file
+`pdfextra-example.tex` contains more examples.
+
+\insertoutline{Contents}\outlines{0}
+\notoc\nonum \sec Contents
+\maketoc
+
+\vfil\break
+
+\chap User documentation
+
+\sec Defining files
+
+Many commands provided by this package require you to supply a file <name>. This
+is because many commands either work directly (like inserting attachments or
+multimedia) or can optionally use files (like inserting JavaScript).
+The \"right" way to use <name> is to first define the <name> with:\nl\indent
+\^`\filedef``/<type>[<name>]{<path or URL>}`.
+
+Where <name> is the name you will use to refer to this file. It is currently
+limited to ASCII only (as all \"<name>s" required by this package).
+Interpretation of <path or URL>
+depends on the type, which may be:
+
+\begitems
+ * `e`, \"embedded file". The file with path <path> will be embedded to the PDF
+ file. A file that is embedded this once, can later be used many times in
+ different contexts, e.g. you may use it to attach a video as an attachment but
+ also have it play on page 1 and even other pages. This is the best way, because
+ the resulting PDF file is self contained.
+ * `x`, \"external file". <path> can only be a path to the current directory.
+ To refer to the file only <path> is used, sort of like a reference. This way
+ the file you want to refer to {\em has} to be present in the same directory as
+ the PDF file when it is {\em viewed}!
+ * `u`, \"URL file". <URL> is the URL of the file you want to refer to.
+\enditems
+
+All these create the same type of object, which ideally could be used
+interchangibly everywhere a {\em file specification} is required in PDF. This is
+sadly not always true. The limitations to only certain types of `\filedef`'s
+will be mentioned in due sections. But as a rule of thumb, most of the time you
+want to embed the files into PDF. The external/URL references are good for
+refering to external files, although other methods are also possible there.
+
+Because most of the times you want <name> to be embedded file, you may omit the
+prior definition and instead use the <path> itself. The file will be
+autoembedded.
+
+Examples:
+
+\begtt
+\filedef/u[doc-internet]{http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf}
+\filedef/x[doc-local]{optex-doc.pdf}
+\filedef/e[doc-embedded]{optex-doc.pdf}
+\endtt
+
+\label[user:multimedia]
+\sec Multimedia
+
+It is possible to insert video, audio and 3D files for playback/display inside
+a PDF file (on a page). There are several different PDF mechanisms for
+inserting multimedia. For audio/video this package uses the so called
+\"Renditions", which currently have the best support in PDF viewers (fully
+works in Acrobat and Foxit, partly in Evince and Okular). Rich Media
+annotations are used for 3D art (works only in Acrobat Reader), although it is
+possible to also insert audio/video using this mechanism it is very restricting
+and Renditions are recommended.
+
+Use command \^`\render``[<name>][<optional key-value parameters>]{<appearance>}` for
+inserting audio/video with Renditions or
+\^`\RM``[<name>][<optional key-value parameters>]{<appearance>}` for inserting
+audio/video/3D as Rich Media annnotation.
+The result of this command is similiar to what `\inspic`
+produces\fnote{But because annotations are involved, transformations using PDF
+literals will not work as expected.}. Both commands expect <name> to be
+\~`\filedef`'d name of the file to play/display. As usual, fallback for
+interpreting <name> as path (and embedding it) is in place. It is recommended
+to only use embedded files with both mechanisms (Rich Media requires it,
+Renditions with other than embedded files do not work in Acrobat). Optional
+key-value parameters may be used to customize default values. They may be left
+out enitrely (including brackets). Last parameter, <appearance>, defines so
+called \"normal apperance", which is shown before the annotation is activated
+(audio/video starts playing or 3D scene is displayed). The dimensions of
+resulting multimedia annotation will be taken from <appearance>. Most likely
+you want to use a \"poster" picture (inserted with `\inspic`) as appearance --
+the dimensions will be taken from it and e.g. aspect ratio will be nicely
+preserved.
+
+Customization of Renditions is possible using key-value parameters, but beware
+that it mostly doesn't work in Evince and Okular (Acrobat and Foxit are fine in
+this regard). The available parameters are in Table~\ref[tab:kv-renditions].
+Most customizations of Rich Media concern 3D art. Available parameters are
+listed in Table~\ref[tab:kv-rm].
+
+\midinsert
+\label[tab:kv-renditions]
+\caption/t Key value parameters available for Renditions (\~`\render`)
+\cskip
+\centerline{\table{lllp{72mm\fL}}{
+Key & Possible values & Default & Description \crll
+`controls` & `true` or `false` & `false` & Whether to display audio/video player controls. \crl
+`volume` & decimal betwen 0 and 100 & 100 & Audio volume. \crl
+`repeat` & integer $\geq$ 0 & 1 & Number of repetitions (0 means loop forever). \crl
+`background` & \OpTeX/ color & `\White` & Color used for part of the annotation not covered by video player (for wrong aspect ratios). \crl
+`opacity` & decimal between 0 and 1 & 1 & Opacity of `background`. \crl
+`aactions` & `\renditionautoplay` & (none) & Can be used for autoplay on page open. \crl
+`name` & ascii string & `<name>` & Name for use with actions and scripts. \crll
+}}
+\endinsert
+
+\midinsert
+\label[tab:kv-rm]
+\caption/t Key value parameters available for Rich Media (\~`\RM`)
+\cskip
+\centerline{\table{lp{31mm\fL}lp{75mm\fL}}{
+Key & Possible values & Default & Description \crll
+`activation` & `explicit` or `auto` & `explicit` & Whether to automatically activate the annotation on page open or display normal apperance until user clicks. \crl
+`deactivation` & `explicit` or `auto` & `explicit` & Whether to automatically deactivate the annotation on page close or require explicit deactivation by user (from right click menu). \crl
+`toolbar` & `true` or `false` & `true` & Whether to show 3D toolbar (with view and other options). \crl
+`views` & comma separated list of view <name>s & `<name>` & List of names of 3D views to be used. The default is to try a view of same <name>. Beware that unknown views are silently ignored. \crl
+`scripts` & comma separated list of script <name>s & (none) & List of names of JavaScript script file <name>s to be used. \crl
+`name` & ascii string & `<name>` & Name for use with actions and scripts. \crll
+}}
+\endinsert
+
+The weird `name` key is only required if one media file is used
+more than once and control using actions or JavaScript scripts is needed.
+
+Examples of video insertion:
+
+\begtt
+% embed file under name "video"
+\filedef/e[video]{example-movie.mp4}
+% insert video into page using Renditions mechanism with controls and autoplay
+\render[video][
+  name=bigvideo,
+  controls=true,
+  aactions=\renditionautoplay,
+]{\picwidth=\hsize \inspic{example-image.pdf}}
+
+% render the same file again, but with different dimensions, no controls
+% and explicit activation
+\render[video]{\inspic{example-image.pdf}}
+\endtt
+
+When displaying 3D there are more things involved. First, only U3D and PRC can
+be included in PDF files. The simplest way to show the 3D scene on page is without
+any optional parameters:
+\par\nobreak\begtt
+\RM[part.prc]{\picwidth=\hsize \inspic{part.png}}
+\endtt
+
+The resulting view will be what is defined in the 3D file. But it is possible
+to customize it, by creating custom view. Or even more of them -- they will be
+available in the user interface for easy switching, first one is considered
+default. Parameters not defined in a custom view often take what is in the 3D
+file as default value. \^`\DDDview``[<view name>][<key-value parameters>]` is
+the command for defining 3D views. The brackets surrounding key-value
+parameters have to be included even if no key-value parameters are used. The
+available parameters are explained in Table~\ref[tab:kv-3dview].
+
+\midinsert
+\label[tab:kv-3dview]
+\caption/t Key value parameters available for 3D views (\~`\DDDview`)
+\cskip
+\centerline{\table{lp{38mm\fL}lp{55mm\fL}}{
+Key & Possible values & Default & Description \crll
+`projection` & `perspective` or `ortho` & `perspective` & Projection type to use (perspective distorts the view, e.g. parallel lines are not shown as such, but is more natural to human eye, orthogonal projection is what is generally used with technical parts). \crl
+`scale` & decimal number & 1 & Scaling to use when orthogonal projection is used. \crl
+`FOV` & number between 0 and 180 & 30 & Field of view for use with perspective projection. \crl
+`background` & \OpTeX/ color & `\White` & Color used as background in the 3D scene. \crl
+`rendermode` & {\typosize[9/10]`Solid`,\hfil\break`SolidWireframe`,\hfil\break`Transparent`,\hfil\break`TransparentWireframe`,\hfil\break`BoundingBox`,\hfil\break`TransparentBoundingBox`,\hfil\break`Wireframe`,\hfil\break`ShadedWireframe`,\hfil\break`Vertices`,\hfil\break`ShadedVertices`,\hfil\break`Illustration`,\hfil\break`SolidOutline`,\hfil\break`ShadedIllustration`} & (taken from 3D file) & Used rendering mode. See PDF standard\tnote{\url{https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf\#G12.2358303}} for more details. \crl
+`lighting` & `White`, `Day`, `Night`, `Hard`, `Primary`, `Blue`, `Red`, `Cube`, `CAD`, `Headlamp` & (taken from 3D file) & Used lighting scheme. See PDF standard\tnote{\url{https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf\#G12.2358356}} for more details.\crl
+`method` & `media9`, `manual`, `u3d` & `media9` & Method used for defining 3D camera position and orientation. \crll
+}}
+\tnoteprint
+\endinsert
+
+The value of `method` key influences what other key-value
+parameters are available. For details about the manual method see the technical
+documentation~(\ref[mm-3dviews]). The `u3d` method works only with U3D files
+(not with PRC files) and requires you to know the internal \"path" of the view
+contained in the file and is hence not always useful (especially when the paths
+are weirdly constructed by exporting applications). But if you know the path
+you can use \"`method=u3d, u3dpath=<path>`". All Unicode characters are allowed in
+<path>.
+
+The most useful method of specifying the camera position/orientation is
+`method=media9`. The same method is also used in a number of other packages
+(movie15, rmannot, Con\TeX/t). Its input are key-value parameters, listed in
+Table~\ref[tab:kv-media9]. For illustration of the parameters check the
+documentation\fnote{\url{https://mirrors.ctan.org/macros/latex/contrib/media9/doc/media9.pdf\#figure.8}}
+of media9.
+
+\midinsert
+\label[tab:kv-media9]
+\caption/t Key value parameters available for media9 method of 3D views (\^`\DDDview`)
+\cskip
+\centerline{\table{lp{38mm\fL}lp{50mm\fL}}{
+Key & Possible values & Default & Description \crll
+`coo` & three space separated (decimal) numbers & `0 0 0` & \"Center of orbit". Coordinates of the point camera is supposed to look at. \crl
+`roo` & (decimal) number & `0` & Distance of camera from `coo`. \crl
+`c2c` & three space separated (decimal) numbers & `0 -1 0` & \"Center of orbit to camera" vector. A directional vector (i.e. length doesn't matter). The direction the camera will be looking at is opposite of this vector. Default is view towards positive $y$.\crll
+}}
+\endinsert
+
+You can construct simple views only by using these few parameters. When talking
+about meanings/names of different views it is needed to know the real placement
+of the 3D object in the 3D world. But for a reasonably orientated object in the
+center (`coo=0 0 0`) constructing simple views is very easy (keep in mind
+`method=media9` is default):
+
+\begtt
+\DDDview[front][
+  projection=ortho,
+  roo=400,
+]
+\DDDview[left][
+  projection=ortho,
+  roo=400,
+  c2c=-1 0 0,
+]
+\DDDview[top][
+  projection=ortho,
+  roo=400,
+  c2c=0 0 1,
+]
+\DDDview[isometric][
+  projection=ortho,
+  roo=500,
+  c2c=-1 -1 1,
+]
+\endtt
+
+We can then perhaps use these views in \^`\RM`:
+
+\begtt
+% Auto activated 3D Rich Media annotation. White background just ensures
+% the right dimensions. Comma in `views` is escaped using "{}".
+\RM[part.prc][
+  activation=auto,
+  views={front, left},
+]{{\White\vrule width\hsize height\vsize}}
+
+\RM[part.prc][ % the same 3D file, now with different views
+  name=part2,
+  activation=auto,
+  views={top, isometric},
+]{{\White\vrule width\hsize height\vsize}}
+\endtt
+
+If you want to deduce the view parameters automatically it is possible. You can
+just not specify any view, but include the `3Dmenu.js` script from media9
+package. It enables you to right click the annotation and select \"Get Current
+View" (or even \"Generate Default View" which finds the view all by itself). A
+window with generated parameters will show up. You can then copy the ones this
+package understands (`c2c`, `coo`, `roo`) and use them. You don't have to be
+excessive with precision, because after calculation everything gets rounded to
+6 decimal places anyways.
+
+\begtt
+% using 3Dmenu.js to generate 3D view parameters automatically
+\RM[part.prc][
+  name=part3,
+  activation=auto,
+  scripts=3Dmenu.js,
+]{{\White\vrule width\hsize height\vsize}}
+\endtt
+
+The use of `scripts` isn't limited to this though, there are many other
+possibilities. First, you can use as many scripts as you want
+(`scripts={script1.js, script2.js, ...}`), but be careful that 3D JavaScript is
+kind of special, and has to come from embedded files (here we
+were using the auto-embedding, but we could have used e.g.
+\~`\filedef/e[3dmenu]{3Dmenu.js}` and then \"`3dmenu`" instead). For creating
+your own scripts check out the Acrobat 3D JavaScript
+API\fnote{\url{https://wwwimages.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/AcrobatDC_js_3d_api_reference.pdf}}.
+It is possible to do different transformations and achieve animations using
+\"time events". The implicit \"context" of 3D scripts can be accessed from
+normal JavaScript actions (see~\ref[user:actions-3djs]). Vice versa 3D scripts
+may access the global JavaScript environment using `host` object.
+
+More examples of 3D Rich Media, including usage of 3D JavaScript, are available
+in the example file `pdfextra-example.tex`. They show how it is possible to
+port the examples used by media9.
+
+\sec Actions
+
+Actions are very important aspect of interactivity in the context of PDF. There
+are a few very useful types of actions, like \"goto" actions which jump to
+other part of document. There are also a few ways how to {\em execute} actions.
+The most usual is a clickable area on page, but clickable bookmarks (\"document
+outline") also execute actions behind the scenes. \OpTeX/ supports only basic
+\"goto" and \"URI" actions using `\ilink` (used for `\ref`, `\cite`, etc.) and
+`\ulink` (used for `\url`).
+
+This package offers generalization of this mechanism. The core of it is a way
+of specifying an action. This syntax is called <action spec> and is used for
+example by `\hlink` command, which can replace both `\ilink` and `\ulink`.
+<action spec> is a comma separated list of `<type>:<arguments>`. where <type>
+refers to the action type and the syntax of arguments is dependant on <type>.
+Leading spaces are ignored, trailing aren't. You probably won't often use the
+possiblity of specifying multiple actions, but it is for chaining execution of
+several actions.
+
+\^`\pdfaction``[<action spec>]` is available for lower level creation of
+different actions, but for clickable areas on page you will use
+\^`\hlink``[<action spec>]{<text>}` with a very similiar syntax. Although note,
+that `\hlink`'s interface is also not really high level and wrapping it inside
+macros like `\ref` or `\url` might be beneficial. <text> will be typeset
+directly and the area it occupies will be clickable. Clicking it executes
+action defined by <action spec>. Line breaks inside <text> will be possible, in
+that case several clickable rectangles will be created, one for each line.
+Normally in text you want the ares to be of the same height and depth
+(calculated from `\baselineskip`), to achieve sort of a lining, uniform effect.
+If you want to define big clickable buttons, you may need to turn off the
+lining effect using \^`\nolininglinks`. It respects groups, but a counterpart
+(\^`\lininglinks`) is also available.
+
+There are a few predefined action types (<type>): `url`, `extref`, `extpgref`,
+`named`, `transition`, `js`, `goto3dview` and `rendition`. They will be explained in a
+moment. Any unrecognized <type> is understood as an \"internal link", where
+`<type>:<link>` is the destination of the link. Hence it is possible to
+use `\hlink` as `\ilink` for example with \OpTeX/'s normal types
+of internal links. For example:
+\begtt
+See section~\hlink[ref:section]{2.2.13} or page~\hlink[pg:5]{5}.
+\endtt
+`\ulink` may be replaced like this:
+\begtt
+Visit CTAN's \hlink[url:https://www.ctan.org/]{website}.
+\endtt
+
+Before we really get into different types of actions, there is a nicer command
+for setting the initial (\"open") action of PDF document, which is executed
+when the document is opened. It defaults to opening the page with the zoom
+level according to viewing user's preferences. But you can change this using
+\^`\openaction``[<action spec>]`:
+
+\begtt
+\openaction[pg:2]
+\endtt
+
+\secc External references
+There are two actions analogous to internal links that can be used to link to
+external documents. `[extref:<name>:<named destination>]` can be used to refer
+to named locations in a PDF document prepared by `\filedef` with <name>.
+`[extpgref:<name>:<page number>]` is similiar but refers to a page number.
+Although it would be nice, these actions aren't well supported by all viewers.
+
+Example:
+
+\begtt
+\hlink[extref:doc-internet:ref:langphrases]{OpTeX documentation,
+        section \"Multilingual phrases and quotation marks".}
+\hlink[extpgref:doc-internet:12]{OpTeX documentation, page 12.}
+\endtt
+
+(Note that \"`:`" in \"`ref:langphrase`" is not part of the syntactic rule, it
+is just the value of <named destination> in this case.)
+
+A little bit of customization is possible, see~\ref[actions-jump].
+
+Because of the poor support you may find luck with the less universal url action with `#fragment`:
+
+\begtt
+\hlink[url:http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf#ref:langphrases]
+      {OpTeX documentation, section \"Multilingual phrases and quotation marks".}
+\endtt
+
+\secc Named actions
+There are four defined in PDF standard, but viewers may support more. All in
+examples:
+
+\begtt
+\hlink[named:NextPage]{Go to next page,}
+\hlink[named:PrevPage]{go to previous page,}
+\hlink[named:FirstPage]{go to first page,}
+\hlink[named:LastPage]{go to last page.}
+\endtt
+
+\secc Transition actions
+
+Transition actions generally make sense only when chained {\em after} jump
+actions. The specified transition/animation will occur, before destination is
+opened, but it will not override a transition defined for the particular page.
+The syntax is `[transition:<transition spec>]`. See~\ref[user:transitions] for
+more information about `<transition spec>`.
+
+Example:
+\begtt
+\hlink[ref:yellow-slide, transition:Box:3:/M /O]
+      {Go to yellow slide with long outward Box transition}
+\endtt
+
+\secc JavaScript actions
+
+They allow executing pieces of JavaScript code using syntax:
+`[js:<name or script>]`. If <name or script> is a validly `\filedef`'d the script from file
+<name> will be executed (only embedded files are valid). Otherwise <script> will
+be used directly. Apart from reuse in different documents, scripts loaded from
+files may be encoded in UTF-16BE and hence support Unicode, inline <script>s
+current don't.
+
+Examples:
+
+\begtt
+\openaction[js:{%
+  app.alert("Javascript alert, open action");
+  console.println("printing to console from openaction");
+}]
+
+\filedef/e[jstest]{test.js}
+\hlink[js:jstest]{JavaScript action from file}
+\endtt
+
+(Note how braces were used to guard the comma in JavaScript code from being
+interpreted as a action separator.)
+
+In these actions you may want to use your own functions which should be defined
+before user has a chance of activating any other JavaScript actions. This is the
+purpose of \"document level" JavaScript actions. They function exactly the same
+way as normal JavaScript actions, but have names (although meaningless, they
+must be unique) and are executed in order of definition. Use
+\^`\dljavascript``[<name>]{<name or script>}` for defining these actions:
+
+\begtt \adef![#1]{\url{#1}}
+\filedef/e[preamble]{preamble.js}
+\djavascript[preamble]{preamble}
+
+\dljavascript[initialization]{%
+  var data = 42;
+  function getRandomNumber() {
+      return 4; // chosen by fair dice roll, ![https://xkcd.com/221/]
+  }
+  console.println("initialized with seed " + getRandomNumber());
+}
+\endtt
+
+The JavaScript API available is not the same as the one in the web browsers. It
+is instead specified by Adobe:
+\url{https://wwwimages.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/js_api_reference.pdf}.
+
+\label[user:actions-3djs]
+\secc 3D JavaScript actions
+
+There are no \"special" JavaScript actions for dealing with 3D. Normal
+JavaScript actions are used. You just have to access the 3D context of the
+annotation you want to control. For annotation with <name> the context is made
+available in \^`\DDDcontext{<name>}`. Under this context object you find all
+global definitions from the respective 3D scripts. For example if a \"`turn`"
+function is defined, it is possible to call it like this:
+
+\begtt
+\hlink[js:\DDDcontext{part3}.turn();]{Turn by 90 degrees along $x$ axis.}
+\endtt
+
+\secc GoTo3Dview actions
+
+GoTo3Dview actions allow changing the view of the 3D scene to one of the
+predefined views (those listed by `views` comma separated list of \~`\RM`). The
+syntax is `[goto3dview:<name>:<view>]`. <name> is name of the annotation whose
+view we want to change and <view> is the intended view. You can refer to last
+inserted Rich Media annotation using empty name. For <view> you can either use
+\"`(<view name>)`" (e.g. \"`(part)`"), index of the view in the view list (zero
+based, e.g.\ \"`0`" for the first view) or one of the special values: \"`/N`"
+(next), \"`/P`" (previous), \"`/F`" (first) \"`/L`" (\"last").
+
+\begtt
+% let's define an annotation with a few views
+\RM[part.prc][
+  activation=auto,
+  views={front, left, top, isometric},
+]{{\White\vrule width\hsize height\vsize}}
+
+% try the different methods of reffering to views
+\hlink[goto3dview::/N]{Next view},
+\hlink[goto3dview::(left)]{left view} and
+\hlink[goto3dview:part.prc:3]{third view}.
+\endtt
+
+\secc Rendition actions
+
+Rendition actions can be used to control playback of \"Rendition annotations".
+They use the syntax `[rendition:<name>:<operation>]`, where <name> refers to
+the name of the rendition to control and <operation> is one of `play`, `stop`,
+`pause` or `resume`. As a convenience, you can refer to last inserted rendition
+using empty name. If a file has been \~`\render`ed more than once with the same
+name, the action will influence the first instance.
+
+Beware that currently these actions do not work in Evince and Okular (but do in
+Acrobat and Foxit).
+
+Examples:
+
+\begtt
+% rendition with name=video, that we want to control
+\render[video]{\inspic{example-image.pdf}}
+
+% we want the rendition action to have yellow border and red content
+\let\_renditionborder\Yellow
+\let\_renditionlinkcolor\Red
+
+To start playing the video, click \hlink[rendition::play]{\"Play"}.
+After that you can \hlink[rendition:video]{pause}.
+\endtt
+
+\label[user:transitions]
+\sec Transitions and other page attributes
+
+In PDF there are a few settings that can be set as {\em page attributes}. This
+means that they apply only to said page. For setting these page attributes,
+there are two options:
+
+\begitems
+* value for \"current page" (or rather the page where the command appears),
+* default value used if \"current page" value is not set.
+\enditems
+
+While this package contains mechanism to handle all page attributes, not that
+many are useful for end user. The interesting ones remaining are:
+
+\begitems
+* Transitions and page durations. When page has the transition attribute any
+jump to this page will display the requested animation (customized by the
+corresponding parameters). Page duration is the time before PDF viewer will auto
+advance to the next page. \^`\transition``[<transition spec>]` sets transition
+for the \"current page", \^`\transitions` sets the default.
+`<transition spec>` has three parts:\nl\indent
+`<animation type>:<duration>:<raw PDF attributes>`\nl
+\noindent <animation type> is one of `Split`, `Blinds`, `Box`, `Wipe`,
+`Dissolve`, `Glitter`, `Fly`, `Push`, `Cover`, `Uncover` and `Fade`, or the
+special value `R` which essentially means no animation and instantaneous
+transition (regardless of the set duration of transition). <duration> is the
+duration of transition in seconds (integer or decimal number).
+<raw PDF attributes> may be used to customize
+the animations (for example `/M` can set the direction of motion of `Split`,
+`Box` and `Fly`, e.g. `/M /I` for inward motion). For the raw PDF attributes
+refer to the standard
+itself\fnote{\url{https://wwwimages2.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf\#G11.2295795}}.
+`:<raw PDF attributes>` or even `:<duration>:<raw PDF attributes>` may be omitted.
+Default values specified by PDF standard will be used in that case (1 second
+duration and default values for all attributes). Page durations can be set
+either using \^`\defaultpageduration``[<duration>]` or
+\^`\pageduration``[<duration>]`, where duration is in seconds (default is no auto
+advancement, i.e. $\infty$).
+Examples:
+
+\begtt
+% unless stated otherwise all pages will have Wipe animation
+% with 1 second duration
+\transitions[Wipe:1]
+
+% but this page has a 1 second Fade animation
+\transition[Fade]
+
+\pg+ % (if using \slides)
+
+% and this page has 3 second Split animation
+% with vertical direction and inward motion
+\transition[Split:3:/Dm /V /M /I]
+\endtt
+
+Note that transitions are only displayed when in {\em full-screen mode}. You
+can use \~`\fullscreen` to have the document automatically open in full-screen
+mode.
+
+* Additional actions. It is possible to define actions which will respond to
+page events: page open (`/O`) and page close (`/C`). They can be set using
+\^`\defaultpageactions``[<additional actions spec>]` (the default for all pages) and
+\^`\pageactions``[<additional actions spec>]` (current page override).
+<additional actions spec> consists of braced pairs of \"event" (O or C in this
+case) and <action spec>. Example:
+
+\begtt
+\pageactions[
+  {O} {js:{app.alert("Page open, random = " + getRandomNumber());}}
+  {C} {js:{app.alert("Page close!");}}
+]
+\endtt
+
+\enditems
+
+\sec Attachments
+
+Every file embedded into a PDF file may optionally be presented in the user
+interface as an embedded file. This allows readers of the document to save or
+open the file.
+
+PDF allows two ways of presenting attachments -- using annotations (the
+attachments is represented by a rectangular icon on a page) or global array of
+attachments (attachments are visible in PDF viewers toolbar). The first method
+is intended more for document reviewers than for primary insertion. Hence this
+package supports only the second type.
+
+You may add an embedded file to the global attachments array using
+\^`\attach``[<name>]`. As usual, name is either a <name> defined with
+`\filedef` or alternatively a path to file which will be embedded (and
+`\filedef`d) automatically. It is not possible to `\attach` files referenced by
+path or URL.
+
+If you want to automatically display toolbar with embedded files, consider
+using `\showattached` (see section~\ref[user:document-view]).
+
+\label[user:document-view]
+\sec Document view
+
+You can choose what is shown when document is opened with commands:
+
+\begitems
+* \^`\fullscreen` (the document is opened in full-screen mode),
+* \^`\showoutlines` (show bookmarks/outlines toolbar)
+* \^`\showattached` (show attachments in toolbar)
+\enditems
+
+The commands are mutually exclusive and only the first appearing one will be respected.
+
+You can set request two page view (odd pages on the right) using
+\^`\duplexdisplay`. It is useful for more natural display of double sided
+documents. Because it may not be desirable to automatically apply this, it is
+independent of `\margins`.
+
+\chap Technical documentation
+
+\printdoctail pdfextra.opm
+\printdoc     pdfextra.opm
+
+\bye
