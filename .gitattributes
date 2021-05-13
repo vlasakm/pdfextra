@@ -1,0 +1,3 @@
+.git* export-ignore
+optex-doc.eref export-ignore
+Makefile export-ignore
