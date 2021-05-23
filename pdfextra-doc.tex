@@ -23,12 +23,19 @@
 \let\_cslinkcolor\Blue
 
 % allow hyperlinking of \OpTeX's control sequences (see doc.opm)
-\let\_pdfextra_opdocaction\_pdfextra_urlaction
-\let\_pdfextra_opdoclinkcolor\Blue
+\let\_pdfextra_extdocaction\_pdfextra_urlaction
+\let\_pdfextra_extdoclinkcolor\Blue
 \def\_Xindex#1#2{\sdef{,#1}{}\slet{el:#1}{optexdoclink}}
-\def\optexdoclink{\hlink[opdoc:\optexdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
+\def\optexdoclink{\hlink[extdoc:\optexdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
 \def\optexdocurl{http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf}
 \isfile{optex-doc.eref}\iftrue \input{optex-doc.eref}\fi
+
+% allow hyperlinkt to TeX's control sequences (TeX in a Nutshell)
+\def\Xeref#1{\sdef{,#1}{}\slet{el:#1}{texdoclink}}
+\def\texdoclink{\hlink[extdoc:\texdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
+\def\texdocurl{http://petr.olsak.net/ftp/olsak/optex/tex-nutshell.pdf}
+\isfile{tex-nutshell.eref}\iftrue \input{tex-nutshell.eref}\fi
+
 
 \insertoutline{PDF extra}
 \tit PDF extra -- extra PDF features for \OpTeX/
