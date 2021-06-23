@@ -27,7 +27,7 @@ Or just copy paste anything you want.
 
 # Usage
 
-In OpTex do: `\load [pdfextra]`.
+In OpTeX do: `\load [pdfextra]`.
 
 # License
 
