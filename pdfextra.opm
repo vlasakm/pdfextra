@@ -885,6 +885,7 @@
 \_def\.boxedannot[#1:#2]#3#4#5{%
    \_setbox0=\_hbox{#3}\_setbox2=\_null
    \_ht2=\_ht0 \_wd2=\_wd0 \_dp2=\_dp0
+   \_preshipout0 \box0
    \_immediate\_pdfxform0
    % box with annotation both stretching to dimensions of appearance
    \_hbox{\.setpageof{#1:#2}%
