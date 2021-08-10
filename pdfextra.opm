@@ -756,6 +756,7 @@
 \_addto\_byehook{%
    \.makenamearray{EmbeddedFiles}\.embeddedfiles
    \.makenamearray{JavaScript}\.dljavascripts
+   \.makenamearray{Renditions}\.renditions
 }
 
    \_doc
@@ -991,13 +992,18 @@
 
    \_cod
 
+\_def\.pdfstringstrip(#1){#1}%
+\_def\.pdfstringtounicode#1#2{\_ea\_pdfunidef\_ea#1\_ea{\_ea\.pdfstringstrip\_expanded{\.cs{filename:#2}}}}
+\_def\.renditions{}
+
 \.secondoptdef\.render#1{\.isfiledefined{\.name}\_iftrue\_bgroup
    \_ea\_readkv\_ea{\_ea\.renderdefaults\_ea,\_the\_opt}%
    \.colortorgbdef\.bgcolor{\_kv{background}}%
    % rendition object ("media specifaction")
+   \.pdfstringtounicode\.uiname\.name
    \_pdfobj {<</Type /Rendition
       /S /MR
-      /N \.cs{filename:\.name}
+      /N \.uiname
       /C <<%/Type /MediaClip
         /S /MCD % subtype MediaClipData
         /D \.cs{filespec:\.name}
@@ -1011,6 +1017,7 @@
         /BE << /O \_kv{opacity} /B [\.bgcolor] >>
       >>
    >>}\_pdfrefobj\_pdflastobj
+   \.xaddto\.renditions{\.uiname \_the\_pdflastobj \_space 0 R }%
    \.redefinename{rendition}%
    \.sxdef{rendition:\.name}{\_the\_pdflastobj}%
    % screen annotation ("screen space allocation")
