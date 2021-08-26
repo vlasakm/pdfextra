@@ -67,7 +67,8 @@
 
    \_doc
    \`\.xaddto``\macro`{<text>} is a natural extension of \OpTeX's `\addto` that
-   expands <text> and is global.
+   expands <text> and is global.\nl
+   \`\.tmp` is used throught the package for temporary values.
    \_cod
 
 \_def\.xaddto#1#2{\_edef\.tmp{#2}%
