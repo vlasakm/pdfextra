@@ -115,10 +115,6 @@
    rough estimate we take the current page~-- this actually works well for
    slides where page breaks are manual.
 
-   `\.pageof` is expandable, but we want to let the user know, that the document
-   needs to be processed twice. Therefore we use \LuaTeX's
-   `\immediateassignment` to increment the counter of unresolved references.
-
    When `.ref` file is read along with the defintion of `\.Xpageof` this package
    has not been loaded yet. Hence we can't use namespaced variants of
    `\.isdefined`, etc.
@@ -134,7 +130,6 @@
 
 \_def\.pageof#1{%
    \.trycs{pageof:#1}{%
-      \_immediateassignment\_incr\_unresolvedrefs
       \_the\_numexpr\_gpageno+1\_relax % best effort = current page num
    }%
 }
