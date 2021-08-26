@@ -1,3 +1,9 @@
+\Xeref{ttindent}
+\Xeref{TeX}
+\Xeref{rm}
+\Xeref{bf}
+\Xeref{it}
+\Xeref{frac}
 \Xeref{hsize}
 \Xeref{vsize}
 \Xeref{hoffset}
@@ -119,6 +125,7 @@
 \Xeref{ifeof}
 \Xeref{unless}
 \Xeref{ifcase}
+\Xeref{pdfstrcmp}
 \Xeref{noexpand}
 \Xeref{unexpanded}
 \Xeref{expanded}
