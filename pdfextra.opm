@@ -699,7 +699,8 @@
 \.pdfpageattributesetters Dur \defaultpageduration \pageduration {#1}
 
    \_doc
-   \sec Attachments and document level JavaScript
+   \label[nametrees]
+   \sec Name trees -- attachments and document level JavaScript
 
    These don't have any last place to be in, so they are documented separately,
    here. Attaching files using `/FileAttachment` annotations:
@@ -727,7 +728,7 @@
    \`\dljavascript``[<name>]{<script>}` (adds action that executes <script>
    after document is opened, <name> is more or less meaningless).
 
-   Internally both commands construct lists of what ends up in the resulting name
+   Internally the commands construct lists of what ends up in the resulting name
    array, i.e. pairs {\visiblesp `(<name>) <object number> 0 R `}. Intermediate
    macros \`\.embeddedfiles` and \`\.dljavascripts` are used for this.
 
@@ -751,7 +752,23 @@
 \_nspublic \dljavascript ;
 
    \_doc
-   Object creation, which is common to both, is handled by\nl\indent
+   Renditions (see \ref[mm-renditions]) also need their name tree. This package
+   mostly doesn't play well with Unicode filenames, that is why they are
+   forbidden. However, Renditions that are accessed from JavaScript have to be
+   named/present in a `/Renditions` name tree, with the names encoded in the PDF
+   encoding (UTF-16BE).\nl
+   The names and object references are collected in \`\.renditions`. Unicode
+   encoding is hacked with \`\.pdfstringtounicode`.
+   \_cod
+
+\_def\.pdfstringstrip(#1){#1}%
+\_def\.pdfstringtounicode#1#2{%
+   \_ea\_pdfunidef\_ea#1\_ea{\_ea\.pdfstringstrip\_expanded{\.cs{filename:#2}}}%
+}
+\_def\.renditions{}
+
+   \_doc
+   Object creation, which is common to all name trees, is handled by\nl\indent
    \`\.makenamearray``<name tree name><name tree content>`.\nl
    It doesn't do anything
    for empty lists, to not bloat PDF files when this mechanism isn't used.
@@ -766,7 +783,7 @@
    The lists themselves can only be written out to the PDF file at the very end
    of the run. We use \OpTeX/'s `\_byehook`, which is run in `\_bye`. But `\bye`
    itself may be predefined by the user, for example when using some of the
-   \OpTeX/ tricks. We just hope that user keeps `\_byehook`.
+   \OpTeX/ tricks. We just hope that the user keeps `\_byehook`.
    \_cod
 
 \_addto\_byehook{%
@@ -1008,10 +1025,6 @@
    reference the latest rendition.
 
    \_cod
-
-\_def\.pdfstringstrip(#1){#1}%
-\_def\.pdfstringtounicode#1#2{\_ea\_pdfunidef\_ea#1\_ea{\_ea\.pdfstringstrip\_expanded{\.cs{filename:#2}}}}
-\_def\.renditions{}
 
 \.secondoptdef\.render#1{\.isfiledefined{\.name}\_iftrue\_bgroup
    \_ea\_readkv\_ea{\_ea\.renderdefaults\_ea,\_the\_opt}%
