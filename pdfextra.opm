@@ -6,7 +6,7 @@
 
    We are in the \OpTeX/ package namespace. A couple of shortcuts are defined
    here: \`\.isdefined`, \`\.trycs`, \`\.cs` \`\.slet`, \`\.slet`, \`\.sdef` and
-   \`\.xdef`. They all hard code the package name, because we already have too
+   \`\.sxdef`. They all hard code the package name, because we already have too
    many levels of indirection.
    \_cod
 
@@ -416,7 +416,7 @@
      running text~-- it covers all space of a line using `\baselineskip`.
      \`\nolininglinks` sets no dimensions, this is useful for buttons, that may
      have larger height/depth than a line.
-   * The color is determined from the type of link (that is the first action in
+   * The color is determined from the type of link (that is, the first action in
      <action spec>) by checking `\_<type>linkcolor` (compatible with \OpTeX/) or
      `\_pdfextra_<type>linkcolor`.
      As a fallback \`\.ilinkcolor` is used (set by `\hyperlinks`).
@@ -1287,7 +1287,7 @@
    \_doc
    For scripting using JavaScript actions one needs to access the 3D context of
    the 3D / Rich Media annotation. This requires the page number. We can't use
-   `this.pageNum` from [TODO], because the script strictly doesn't have to be on
+   `this.pageNum`, because the script strictly doesn't have to be on
    the same page. We use `\.pageof` (`\.setpageof` was done in `\.boxedannot`)
    to retrieve the page number in next run. Also PDF indexes page numbers from
    0. \`\DDDannot``{<name>}`. and \`\DDDcontext``{<name>}` allow this.

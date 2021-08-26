@@ -30,7 +30,7 @@
 \def\optexdocurl{http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf}
 \isfile{optex-doc.eref}\iftrue \input{optex-doc.eref}\fi
 
-% allow hyperlinkt to TeX's control sequences (TeX in a Nutshell)
+% allow hyperlinks to TeX's control sequences (TeX in a Nutshell)
 \def\Xeref#1{\sdef{,#1}{}\slet{el:#1}{texdoclink}}
 \def\texdoclink{\hlink[extdoc:\texdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
 \def\texdocurl{http://petr.olsak.net/ftp/olsak/optex/tex-nutshell.pdf}
@@ -374,7 +374,7 @@ macros like `\ref` or `\url` might be beneficial. <text> will be typeset
 directly and the area it occupies will be clickable. Clicking it executes
 action defined by <action spec>. Line breaks inside <text> will be possible, in
 that case several clickable rectangles will be created, one for each line.
-Normally in text you want the ares to be of the same height and depth
+Normally in text you want the areas to be of the same height and depth
 (calculated from `\baselineskip`), to achieve sort of a lining, uniform effect.
 If you want to define big clickable buttons, you may need to turn off the
 lining effect using \^`\nolininglinks`. It respects groups, but a counterpart
