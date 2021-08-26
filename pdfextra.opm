@@ -1713,14 +1713,3 @@
 
 \_endnamespace
 \_endcode
-
-This is the technical documentation. It is intended for those who want to know
-how this package works internally. Casual users shouldn't need to read this. But
-if you would like to customize anything or perhaps just use some part of this
-package, feel free to copy paste and use anything you want in \OpTeX/'s spirit.
-
-This documentation is interleaved within the source itself, both are contained
-in a single file, `pdfextra.opm` (according to \OpTeX/ conventions). The user
-documentation is instead contained in `pdfextra-doc.tex`, which itself
-`\input`'s the documented source file `pdfextra.opm` so that the user and
-technical documentation is available in a single PDF file, `pdfextra-doc.pdf`.
