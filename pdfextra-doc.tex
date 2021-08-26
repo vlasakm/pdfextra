@@ -2,8 +2,6 @@
 \load [doc, pdfextra]
 \catcode`\.=11
 
-\hyperlinks\Green\Green
-
 % table notes (http://petr.olsak.net/optex/optex-tricks.html#tnote)
 \newcount\tnotenum
 \def\tnotelist{}
@@ -14,17 +12,11 @@
    \global\tnotenum=0 \gdef\tnotelist{}%
 }
 
-% use `\hlink` instead of OpTeX `\*link` s
-\protected\def\_link[#1]#2#3{\hlink[#1]{#3}}
-\protected\def\_ilink[#1]#2{\hlink[#1]{#2}}
-\protected\def\_ulink[#1]#2{\hlink[url:#1]{#2}}
-\public \link \ilink \ulink ;
-
 \let\_cslinkcolor\Blue
 
 % allow hyperlinking of \OpTeX's control sequences (see doc.opm)
 \let\_pdfextra_extdocaction\_pdfextra_urlaction
-\let\_pdfextra_extdoclinkcolor\Blue
+\let\_extdoclinkcolor\Blue
 \def\_Xindex#1#2{\sdef{,#1}{}\slet{el:#1}{optexdoclink}}
 \def\optexdoclink{\hlink[extdoc:\optexdocurl\#cs:\_tmpa]{\csstring\\\_tmpb}}
 \def\optexdocurl{http://petr.olsak.net/ftp/olsak/optex/optex-doc.pdf}

@@ -1,16 +1,34 @@
 % vim: tw=80
 \_def\_pdfextra_version{0.1}
 \_codedecl \RM {Extra PDF features (v\_pdfextra_version)}
+\_namespace{pdfextra}
+
    \_doc
    \sec Package initialization
 
+   We ensure that hyperlinking is active. Our fallback \`\_linkcolor` must
+   exist. We also use it for `\hyperlinks` if the user didn't enable
+   `\hyperlinks` yet (we don't want to override user setting).
+   \_cod
+
+\_ifdefined\_ilinkcolor\_else
+   \_ifdefined\_linkcolor
+      \_ea\_let\_ea\_linkcolor \_ifdefined\Blue\Blue\_else\_empty\_fi
+   \_else
+      \_let\_linkcolor\linkcolor
+   \_fi
+\_fi
+
+\_ifx\_dest\_destactive\_else
+   \_hyperlinks\_linkcolor\_linkcolor
+\_fi
+
+   \_doc
    We are in the \OpTeX/ package namespace. A couple of shortcuts are defined
    here: \`\.isdefined`, \`\.trycs`, \`\.cs` \`\.slet`, \`\.slet`, \`\.sdef` and
    \`\.sxdef`. They all hard code the package name, because we already have too
    many levels of indirection.
    \_cod
-
-\_namespace{pdfextra}
 
 \_def\.isdefined#1{\_isdefined{_pdfextra_#1}}
 \_def\.trycs#1{\_trycs{_pdfextra_#1}}
@@ -364,14 +382,12 @@
    \_doc
    \label[actions-link]
    \secc Link annotations
-   The main use of actions~-- annotations of `/Subtype /Link`.
-   Annotation of this type creates an active rectangular area on the page that
-   executes a PDF action (or chain of them in the general case).
-   \`\hlinkactive``[<action spec>]<text>` is a natural extension of \OpTeX/'s
-   `\linkactive`, that supports the classic \"jump" actions of types `ref`,
-   `bib`, etc. But also other types of actions. No distinction between
-   \"internal" (`\ilink`) and external (`\ulink`) links is made. The mechanism is
-   completely generic.
+   The main use of actions~-- annotations of `/Subtype /Link`. Annotation of
+   this type creates an active rectangular area on the page that executes a PDF
+   action (or chain of them in the general case).
+   \`\hlink``[<action spec>]<text>` is macro that typesets <text> and makes area
+   occupied by it active according to <action spec>. All action types are
+   supported, the mechanism is completely generic.
 
    The `\pdfstartlink`/`\pdfendlink` primitives are used to denote the part of
    the page where <text> appears as active. \LuaTeX/ will then handle even the
@@ -379,7 +395,7 @@
    multiple rectangular annotations to cover all `\hbox`es).
    \_cod
 
-\_def\.hlinkactive[#1]#2{\_bgroup\_def\#{\_csstring\#}%
+\_def\.hlink[#1]#2{\_bgroup\_def\#{\_csstring\#}%
     \_edef\.type{\.pdfactiontype[#1]}%
     \_quitvmode\_pdfstartlink \.linkdimens
        attr{\_pdfborder{\.type}}%
@@ -387,25 +403,25 @@
     \_localcolor\.linkcolor{\.type}#2\_pdfendlink\_egroup
 }
 
-   \_doc
-   `\hlinkactive` itself is dormant before `\hyperlinks` occurs. Until then, a
-   dummy \`\hlink` is used. \OpTeX/'s `\hyperlinks` is extended to hook `\hlink`
-   activation. The colors of internal/external links are remembered for
-   compatibility with \OpTeX/.
-   \_cod
-
-\_def\.hlink[#1]#2{\_quitvmode{#2}}
 \_nspublic \hlink ;
 
-\_let\.oldhyperlinks\_hyperlinks
-\_def\_hyperlinks#1#2{%
-   \.oldhyperlinks#1#2
-   \_let\.ilinkcolor=#1%
-   \_let\.elinkcolor=#2%
-   \_let\.hlink=\.hlinkactive
-   \_let\hlink=\.hlink
-}
-\_public \hyperlinks ;
+   \_doc
+   Use `\hlink` as the backing command for OpTeX's \"higher level" linking
+   commands (`\ilink` and `\ulink`).
+
+   The lower level ones (`\xlink` and its predecessor `\link` actually have
+   completely different semantics with regards to color, so we keep them as they
+   are.
+   \_cod
+
+\_protected\_def\_ilink[#1]#2{\.hlink[#1]{#2}}
+\_protected\_def\_ulink[#1]#2{{\_escapechar=-1 \_ea}\_expanded
+   {\_noexpand\.hlink[url:\_detokenize{#1}]}{#2}}
+
+\_public \link \ilink \ulink ;
+
+%\_protected\_def\_link[#1]#2#3{\_hlink[#1]{#3}}
+%\_protected\_def\_xlink#1#2#3#4{\_hlink[#1:#2]{#4}}
 
    \_doc
    Two customizations of `\hlinks` are possible:
@@ -418,9 +434,11 @@
      \`\nolininglinks` sets no dimensions, this is useful for buttons, that may
      have larger height/depth than a line.
    * The color is determined from the type of link (that is, the first action in
-     <action spec>) by checking `\_<type>linkcolor` (compatible with \OpTeX/) or
-     `\_pdfextra_<type>linkcolor`.
-     As a fallback \`\.ilinkcolor` is used (set by `\hyperlinks`).
+     <action spec>) by checking `\_<type>linkcolor` (compatible with \OpTeX/).
+     As a fallback `\_ilinkcolor` is used (set by \OpTeX's `\hyperlinks`) for all links
+     except for URLs, where `\_elinkcolor` is used instead. If even these
+     fallback colors are not defined (`\hyperlinks` isn't used), then the most
+     generic `\_linkcolor` will be taken or no color will be set.
    \enditems
    \_cod
 
@@ -432,8 +450,10 @@
 
 \_nspublic \lininglinks \nolininglinks ;
 
-\_def\.linkcolor#1{\_trycs{_#1linkcolor}{\.trycs{#1linkcolor}{\.ilinkcolor}}}
-\_def\.ilinkcolor{}
+\_def\.linkcolor#1{\_trycs{_#1linkcolor}{\_trycs{_ilinkcolor}{\_trycs{_linkcolor}{}}}}
+
+ % \_urllinkcolor = \_elinkcolor with fallbacks
+\_def\_urllinkcolor{\.linkcolor{e}}
 
    \_doc
    \secc Open action

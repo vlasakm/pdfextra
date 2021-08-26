@@ -28,6 +28,7 @@ $(ZIP_NAME): $(SOURCES) $(TARGETS)
 
 pdfextra-doc.pdf: pdfextra-doc.tex pdfextra.opm extref/optex-doc.eref \
 		extref/tex-nutshell.eref
+	# special path searching setup is required here
 	$(TEX) $<
 	$(TEX) $<
 	$(TEX) $<
