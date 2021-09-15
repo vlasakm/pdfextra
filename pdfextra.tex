@@ -1,0 +1,361 @@
+\ifdefined \pdfextraloaded \expandafter \endinput \fi
+\chardef\pdfextraloaded=\catcode`\_
+\catcode`\_=11
+
+\long\def \_xargs #1#2{\ifx #2;\else
+   \expandafter#1\expandafter#2\expandafter\_xargs \expandafter #1\fi}
+
+\def \_private {\_xargs \_privateA}
+\def \_privateA #1{\expandafter\let\csname  _\csstring #1\endcsname#1}
+
+% primitives
+\_private \detokenize \expanded \hbox \ht \wd \dp \copy \immediateassignment ;
+\_private \escapechar \baselineskip \quitvmode \lastnamedcs ;
+
+%
+% prefixed.opm
+%
+
+\_private \expandafter \def \let \ifx \else \fi \undefined \wlog \endinput ;
+
+\_let\_ea=\_expandafter
+
+\_def \_codedecl #1#2{%
+   \_ifx #1\_undefined \_wlog{#2}%
+   \_else \_ea \_endinput \_fi
+}
+
+\_let \_endcode = \_endinput
+
+\_def \_wterm {\_immediate \_write16 }
+
+\_private \ifcsname \csname \endcsname \errmessage \gdef \csstring \directlua ;
+\_let \_ea = \_expandafter
+
+% modified
+\_def \_pkglabel{}
+\_def\_namespace #1{%
+   \_ifcsname namesp:#1\_endcsname \_errmessage
+      {The name space "#1" is used already, it cannot be used twice}%
+      \_endinput
+   \_else \_resetnamespace{#1}\_fi
+}
+\_def\_resetnamespace #1{%
+   \_ea \_gdef \_csname namesp:#1\_endcsname {}%
+   \_gdef \_pkglabel{_#1}%
+   \_directlua{
+      luatexbase.add_to_callback("process_input_buffer",
+        function (str)
+           return string.gsub(str, "\_nbb[.]([a-zA-Z])", "\_nbb _#1_\_pcent 1")
+        end, "_namespace")
+   }%
+}
+% modified
+\_def\_endnamespace {%
+   \_directlua{ luatexbase.remove_from_callback("process_input_buffer", "_namespace") }%
+   \_gdef \_pkglabel{}%
+}
+
+\_def \_nspublic {\_xargs \_nspublicA}
+\_def \_nspublicA #1{%
+   \_unless\_ifx #1\_undefined
+      \_opwarning{\_ea\_ignoreit\_pkglabel\_space redefines the meaning of \_string#1}\_fi
+   \_ea\_let \_ea#1\_csname \_pkglabel _\_csstring #1\_endcsname
+}
+
+% modified
+\_def \_public {\_xargs \_publicA}
+\_def \_publicA #1{\_ea\_let \_ea#1\_csname  _\_csstring #1\_endcsname}
+
+%
+% basic-macros.opm
+%
+
+\_private \bgroup \egroup \empty \space \null \long ;
+
+\_long\_def \_ignoreit #1{}
+\_long\_def \_useit #1{#1}
+\_long\_def \_ignoresecond #1#2{#1}
+\_long\_def \_usesecond #1#2{#2}
+
+\_private \the \inputlineno \edef ;
+
+\_def \_opwarning #1{\_wterm{WARNING l.\_the\_inputlineno: pdfextra: #1.}}
+
+\_edef \_bslash {\_csstring\\}
+\_edef \_pcent  {\_csstring\%}
+\_edef \_nbb    {\_bslash\_bslash}
+
+\_private \xdef \begincsname ;
+
+\_def \_sdef #1{\_ea\_def \_csname#1\_endcsname}
+\_def \_sxdef #1{\_ea\_xdef \_csname#1\_endcsname}
+\_def \_slet #1#2{\_ea\_let \_csname#1\_ea\_endcsname
+   \_ifcsname#2\_ea\_endcsname \_begincsname#2\_endcsname \_else \_undefined \_fi
+}
+
+\_def \_cs #1{\_csname#1\_endcsname}
+\_def \_trycs#1#2{\_ifcsname #1\_endcsname \_csname #1\_ea\_endcsname \_else #2\_fi}
+
+\_long\_def \_addto #1#2{\_ea\_def\_ea#1\_ea{#1#2}}
+
+\_private \global \advance ;
+
+\_def\_incr #1{\_global\_advance#1by1 }
+\_def\_decr #1{\_global\_advance#1by-1 }
+
+\_private \immediate \closeout \jobname ;
+
+% modified
+\_def\_byehook{%
+   \_immediate\_closeout\_reffile
+   \_edef\_tmp{\_mdfive{\_jobname.ref}}%
+   \_ifx\_tmp\_prevrefhash\_else \_opwarning{Try to rerun,
+      \_jobname.ref file was \_ifx\_prevrefhash\_empty created\_else changed\_fi}\_fi
+}
+
+%
+% alloc.opm
+%
+
+\_private \newcount ;
+
+%
+% if-macros.opm
+%
+
+\_def\_afterfi#1#2\_fi{\_fi#1}
+
+\_private \unless ;
+
+\_def\_isdefined #1#2{\_ifcsname #1\_endcsname \_else \_ea\_unless \_fi #2}
+
+\_private \newread \openin \relax \ifeof \closein ;
+
+\_newread \_testin
+\_def\_isfile #1{%
+   \_immediate\_openin\_testin ={#1}\_relax
+   \_ifeof\_testin \_ea\_unless
+   \_else \_immediate\_closein\_testin
+   \_fi
+}
+
+\_private \begingroup \toks \endgroup \futurelet ;
+
+\_long\_def\_isnextchar#1#2#3{\_begingroup\_toks0={\_endgroup#2}\_toks1={\_endgroup#3}%
+   \_let\_tmp= #1\_futurelet\_next\_isnextcharA
+}
+\_def\_isnextcharA{\_the\_toks\_ifx\_tmp\_next0\_else1\_fi\_space}
+
+%
+% more-macros.opm
+%
+
+\_private \string \newtoks \romannumeral ;
+
+\_def\_optdef#1[#2]{%
+   \_def#1{\_opt={#2}\_isnextchar[{\_cs{_oA:\_string#1}}{\_cs{_oB:\_string#1}}}%
+   \_sdef{_oA:\_string#1}[##1]{\_opt={##1}\_cs{_oB:\_string#1\_nospaceafter}}%
+   \_sdef{_oB:\_string#1\_nospaceafter}%
+}
+\_def\_nospaceafter#1{\_ea#1\_romannumeral-`\.}
+\_newtoks\_opt
+
+\_private \noexpand \catcode \toksapp ;
+
+\_newtoks\_tmptoks
+% modified
+\_edef\_tmp{\_noexpand\_catcode`!=\_the\_catcode`! \_noexpand\_catcode`?=\_the\_catcode`?}
+\_catcode`!=3 \_catcode`?=3
+\_def\_replstring #1#2#3{%  \replstring #1{stringA}{stringB}
+   \_long\_def\_replacestringsA##1#2{\_tmptoks{##1}\_replacestringsB}%
+   \_long\_def\_replacestringsB##1#2{\_ifx!##1\_relax \_else \_toksapp\_tmptoks{#3##1}%
+                                     \_ea\_replacestringsB\_fi}%
+   \_ea\_replacestringsA #1?#2!#2%
+   \_long\_def\_replacestringsA##1?{\_tmptoks{##1}\_edef#1{\_the\_tmptoks}}%
+   \_ea\_replacestringsA \_the\_tmptoks}
+\_tmp % modified
+
+% modified (no \_skiptoeol)
+\_long\_def\_doc #1\_cod{}
+
+%
+% keyval.opm
+%
+
+\_def\_readkv#1{\_ea\_def\_ea\_tmpb\_ea{#1}%
+   \_replstring\_tmpb{= }{=}\_replstring\_tmpb{ =}{=}%
+   \_replstring\_tmpb{, }{,}\_replstring\_tmpb{,,}{,}%
+   \_ea \_kvscan \_tmpb,,=,}
+\_def\_kvscan #1#2=#3,{\_ifx#1,\_else \_sdef{_kv:#1#2}{#3}\_ea\_kvscan\_fi}
+\_def\_kv#1{\_trycs{_kv:#1}{\_kvunknown}}
+\_def\_kvunknown{???}
+
+%
+% ref-file.opm
+%
+
+\_private \newwrite \write \iftrue \iffalse \input ;
+
+% modified
+\_newwrite\_reffile
+\_def\_inputref {%
+  \_isfile{\_jobname.ref}\_iftrue
+     \_edef\_prevrefhash{\_mdfive{\_jobname.ref}}%
+     \_input {\_jobname.ref}%
+     \_openref
+  \_fi
+}
+
+\_private \luaescapestring ;
+
+% modified
+\_def\_mdfive#1{\_directlua{
+    local fh = io.open("\_luaescapestring{#1}", "rb")
+    if fh then
+        local data = fh:read("*a")
+        fh:close()
+        tex.print(md5.sumhexa(data))
+    end
+}}
+\_def\_prevrefhash{}
+
+\_def\_wrefrelax#1#2{}
+\_let\_wref=\_wrefrelax
+
+\_private \openout ;
+
+% modified
+\_def\_openref {%
+   \_immediate\_openout\_reffile={\_jobname.ref}\_relax
+   \_gdef\_wref ##1##2{\_write\_reffile{\_bslash\_csstring##1##2}}%
+   \_immediate\_write\_reffile {\_pcent\_pcent\_space pdfextra - REF file}%
+   \_gdef\_openref{}%
+}
+\_def\_ewref #1#2{\_edef\_ewrefA{#2}\_ea\_wref\_ea#1\_ea{\_ewrefA}}
+
+\_private \ifnum ;
+
+\_def\_refdecl{\_bgroup \_catcode`\#=12 \_refdeclA}
+\_def\_refdeclA #1{\_egroup\_openref
+   \_immediate\_write\_reffile {\_pcent\_space \_string \refdecl:}%
+   \_immediate\_write\_reffile {\_detokenize{#1}}%
+}
+
+%
+% hyperlinks.opm
+%
+
+\_def\_pdfborder#1{\_ifcsname _#1border\_endcsname
+     /C [\_csname _#1border\_endcsname] /Border [0 0 .6]\_else  /Border [0 0 0]\_fi
+}
+
+% modified
+\_def\_hyperlinks#1#2{%
+   \_let\_ilinkcolor=#1\_empty
+   \_let\_elinkcolor=#2\_empty
+}
+\_public \hyperlinks ;
+
+%
+% pdfuni-string.opm
+%
+
+% modified
+\_def\_pdfunidef#1#2{%
+    \_edef\_tmp{#2}%
+    \_def#1{\_directlua{
+    local str = token.scan_string()
+    local out = { "<FEFF" }
+    for _, c in utf8.codes(str) do
+        if c < 0x10000 then
+            out[\_csstring\#out+1] = string.format("\_pcent04X", c)
+        else
+            c = c - 0x10000
+            local high = c >> 10 + 0xD800
+            local low = c \_csstring\& 0x3FF + 0xDC00
+            out[\_csstring\#out+1] = string.format("\_pcent04X\_pcent04X", high, low)
+        end
+    end
+    out[\_csstring\#out+1] = ">"
+    tex.print(table.concat(out, ""))}\_ea{\_tmp}%
+}}
+
+%
+% optex.lua
+%
+
+\_private \setbox ;
+
+% modified
+\_def\_preshipout#1#2{\_setbox#1#2}
+
+%
+% luatex-ini.opm
+%
+
+\_private \protected \pdfextension \pdffeedback \pdfvariable ;
+\_private \numexpr \saveboxresource \lastsavedboxresourceindex ;
+
+\_protected\_def \_pdfobj            {\_pdfextension obj }
+\_protected\_def \_pdfrefobj         {\_pdfextension refobj }
+\_protected\_def \_pdflastobj        {\_numexpr\_pdffeedback lastobj\_relax}
+\_protected\_def \_pdfstartlink      {\_pdfextension startlink }
+\_protected\_def \_pdfendlink        {\_pdfextension endlink\_relax}
+\_protected\_def \_pdfcatalog        {\_pdfextension catalog }
+\_protected\_edef\_pdfpageattr       {\_pdfvariable pageattr}
+\_protected\_def \_pdfnames          {\_pdfextension names }
+\_protected\_def \_pdfannot          {\_pdfextension annot }
+\_protected\_def \_pdflastannot      {\_numexpr\_pdffeedback lastannot\_relax}
+           \_def \_pdfpageref        {\_pdffeedback pageref}
+           \_let \_pdfxform           \_saveboxresource
+           \_let \_pdflastxform       \_lastsavedboxresourceindex
+
+%
+% output.opm
+%
+
+\_let\_oldshipout=\shipout
+\_def\shipout{\_begoutput\_oldshipout}
+
+% modified
+\_newcount\_gpageno
+\_def \_begoutput{\_incr\_gpageno
+   % we try \folio, or nothing ({}), pdfextra only uses \gpageno
+   \_immediate\_wref\_Xpage{{\_the\_gpageno}{\_trycs{folio}{}}}%
+}
+
+%
+% references.opm
+%
+
+% modified
+\_def\_Xpage#1#2{\_def\_currpage{{#1}{#2}}}
+
+%
+% colors.opm
+%
+
+% modified
+\_let\_localcolor\_relax
+
+%
+% \_byehook and \_inputref
+%
+
+\_private \ifdefined ;
+
+\_ifdefined\AtEndDocument
+    % make sure all pages (and write whatsits) are flushed before we close files
+    \AtEndDocument{\clearpage\_byehook}%
+\_else
+    % hope that usual \bye (\outer\def\bye{\par\vfill\supereject\end}) is used
+    \_let\_end\end
+    \_def\end{\_byehook \_end}%
+\_fi
+
+\_inputref
+
+% continue with the real macros
+\_input pdfextra.opm
+\_catcode`\_=\pdfextraloaded
