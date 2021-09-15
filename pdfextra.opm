@@ -1630,7 +1630,7 @@
   coo=0 0 0,
   c2c=0 -1 0,
 }
-\.sdef{3dview:media9}{\_edef\.coo{\_kv{coo}}\_edef\.c2c{\_kv{c2c}}\_edef\.viewparams{
+\.sdef{3dview:media9}{\_edef\.viewparams{
   /MS /M
   /C2W [\_directlua{
   local function normalize(x, y, z)
