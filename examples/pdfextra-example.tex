@@ -7,17 +7,14 @@
 % env TEXMFDOTDIR=.:~/src/texlive/texmf-dist/source/latex/media9/files/ optex pdfextra-example.tex
 % \endtt
 
-% basic \OpTeX/ settings
+% Basic \OpTeX/ settings:
 \enlang\enquotes
 \fontfam[lm]
 
-%\pdfobjcompresslevel=0
-%\pdfcompresslevel=0
-
-% load the package from standard search path
+% Load the package from standard search path:
 \load[pdfextra]
 
-% Before using \hlink we must activate hyperlinks
+% Before using \hlink we must activate hyperlinks:
 \hyperlinks\Blue\Green
 
 % Maybe we want to greet the user and jump to page 2 right at the start?
@@ -66,7 +63,8 @@
 % Render the same file again, but with different dimensions, no controls
 % and explicit activation.
 \render[video]{\inspic{example-image.pdf}}
-% This one can't have buttons, because it doesn't have its own name ("video") is used by the previous one.
+% This one can't have buttons, because it doesn't have its own name -- "video"
+% is used by the previous one.
 
 
 
@@ -87,13 +85,13 @@
 
 
 
-% deliver fresh random number to everyone who sees this page using "page open"
-% trigger event of page's actions
+% Deliver fresh random number to everyone who sees this page using "page open"
+% ("O") trigger event of page's actions.
 \pageactions[
   {O} {js:{app.alert("Random number for you is " + getRandomNumber());}}
 ]
 
-% "previous page" link with "Split" transition
+% Link to OpTeX's page reference ("pg:1") with "Split" transition:
 \hlink[pg:1, transition:Split]{Go to previous page (with transition).}
 
 
@@ -102,7 +100,8 @@
 
 % A 3D Rich Media annotation with a custom view and script follows:
 
-% First we define the 3D file, so we can use same name for the view and have it auto included.
+% First we define the 3D file, so we can use same name for the view and have it
+% auto included.
 \filedef/e[example]{pdfextra-example-part.prc}
 
 % Then a simplistic "front" view.
@@ -112,8 +111,9 @@
 ]
 
 % A 3D JavaScript script that will define function to use with action button.
-% (we write the script only now, so we don't have to carry around an extra file in the package,
-%  you would normally have the contents in the file -- "turn.js" in this case)
+% (we write the script only now, so we don't have to carry around an extra file
+% in the package, you would normally have the contents in the file -- "turn.js"
+% in this case).
 \newwrite\js
 \immediate\openout\js=turn.js
 % rotate every node by angle degrees along $x$ axis
@@ -143,10 +143,11 @@ function turn(angle) {
 \vfil\break
 
 
-% Here is the "epix" 3D model example from media9 documentation ported to pdfextra
+% Here is the "epix" 3D model example from media9 documentation ported to
+% pdfextra.
 %
 % First we define a view with the same name as the future Rich Media
-% annotation. This view will then automatically be used if no `views` is
+% annotation. This view will then automatically be used if no `views` key is
 % specified. No need to be excessive with decimal numbers.
 \DDDview[epix][
   FOV=30,
@@ -160,11 +161,13 @@ function turn(angle) {
 % We want to use the nice "epix" name for the view and annotation.
 \filedef/e[epix]{epix.prc}
 
-% Just to spice things up, we diverge a bit from media9 and define custom background color.
+% Just to spice things up, we diverge a bit from media9 and define custom
+% background color.
 \colordef\GreyBG{0.1\Black}
 
 % Define the 3D Rich Media annotation. One view is automatically detected from
-% name ("epix"). Scripts will run in turn at initialization time.
+% name ("epix"). Scripts will run in specified order at initialization time
+% (when the annotation is activated).
 \RM[epix][
   scripts={
     asylabels.js,
@@ -181,7 +184,8 @@ function turn(angle) {
 
 
 % Second media9 example is "dice" it has a lot of views, but they are simple.
-% This time we can't use the deduction with same name.
+% This time we can't use the view name deduction from `\RM` name -- there is
+% more than one view.
 \DDDview[Front][roo=27]
 \DDDview[Back][roo=27, c2c=0 1 0]
 \DDDview[Left][roo=27, c2c=-1 0 0]
@@ -191,9 +195,9 @@ function turn(angle) {
 \DDDview[Fish Eye at Centre][fov=120]
 
 % We want to use all the defined views, as well as autoactivate the annotation.
-% This means that the previews mostly sets dimensions, because it will not be
-% shown much. (Except in viewers that don't support 3D Rich Media -- all except
-% Acrobat).
+% This means that the preview mostly sets dimensions, because it will not be
+% shown much. (Only in viewers that don't support 3D Rich Media -- that is, all
+% except Acrobat).
 \RM[dice.u3d][
   views={Front, Back, Left, Right, Top, Bottom, Fish Eye at Centre},
   activation=auto,
@@ -210,7 +214,7 @@ function turn(angle) {
 
 % Last media9 example ported. It has its own JavaScript file for animation,
 % which can be customized at runtime using JavaScript actions that access 3D
-% conotext.
+% context of the annotation.
 \filedef/e[malte]{malte.u3d}
 \DDDview[malte][c2c=1 1 1, roo=0.25]
 \RM[malte][
@@ -235,7 +239,7 @@ function turn(angle) {
 
 % Lastly a showcase of transitions / page durations in \OpTeX/ slideshow.
 % Because transitions are displayed only in fullscreen mode, we could request
-% it by using "\fullscreen". But we have more pages before this, so we didn't.
+% it by using `\fullscreen`. But we have more pages before this, so we didn't.
 
 % We just turn the rest of the document into slideshow.
 \slides
@@ -248,7 +252,8 @@ function turn(angle) {
 % "Wipe" and be 1 second long.
 \transitions[Wipe:1]
 
-% The slides will by default be shown for 3 seconds before advancing to the next one.
+% The slides will by default be shown for 3 seconds before advancing to the
+% next one.
 \defaultpageduration[3]
 % But the first slide has override to only be shown for 1 second.
 \pageduration[1]
@@ -263,7 +268,7 @@ function turn(angle) {
 % to that page. That means that we probably didn't see the "Wipe:1" animation
 % of the first slide, because we already were there. However, this second slide
 % with "Fade" is now shown correctly. (The first one also will, when we go
-% back.)
+% back to it.)
 \transition[Fade]
 
 \sec First slide
