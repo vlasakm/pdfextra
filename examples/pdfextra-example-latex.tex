@@ -1,11 +1,12 @@
+% Compiled with:
+% env TEXMFDOTDIR='..//:~/src/texlive/texmf-dist/source/latex/media9/files/' lualatex pdfextra-example-latex.tex
 \documentclass{article}
 
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{pdfextra}
-\newcommand\Blue{\color{blue}}
-\hyperlinks\Blue\Blue
+\sdef{_linkcolor}{\color{blue}}
 
 \begin{document}
 
@@ -39,7 +40,10 @@
   aactions=\renditionautoplay,
 ]{\includegraphics[width=\textwidth]{example-image.pdf}}
 
-% Maybe add action buttons?
+% We set red text color, blue border (RGB triplet) for "rendition" links.
+\sdef{_renditionlinkcolor}{\color{red}}
+\sdef{_renditionborder}{0 1 0}
+% Then we add some buttons.
 \hlink[rendition::play]{play} \hlink[rendition::pause]{pause}
 \hlink[rendition::stop]{stop} \hlink[rendition::resume]{resume}
 

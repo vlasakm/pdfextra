@@ -94,6 +94,9 @@
    \_ifcsname#2\_ea\_endcsname \_begincsname#2\_endcsname \_else \_undefined \_fi
 }
 
+% Make \sdef public, so users can customize without messing with catcodes.
+\_public \sdef ;
+
 \_def \_cs #1{\_csname#1\_endcsname}
 \_def \_trycs#1#2{\_ifcsname #1\_endcsname \_csname #1\_ea\_endcsname \_else #2\_fi}
 

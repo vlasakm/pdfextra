@@ -57,7 +57,10 @@
   aactions=\renditionautoplay,
 ]{\picwidth=\hsize \inspic{example-image.pdf}}
 
-% Maybe add action buttons?
+% We set red text color, blue border (RGB triplet) for "rendition" links.
+\let\_renditionlinkcolor\Red
+\def\_renditionborder{0 1 0}
+% Then we add some buttons.
 \hlink[rendition::play]{play} \hlink[rendition::pause]{pause}
 \hlink[rendition::stop]{stop} \hlink[rendition::resume]{resume}
 

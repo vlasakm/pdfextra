@@ -49,7 +49,8 @@ copying some useful parts of this package into your documents / packages.
 \OpTeX/ namespacing is used, but it can be easily stripped, if you wish to
 incorporate these macros into other macro packages. The code currently depends
 on \LuaTeX/, but mostly uses only pdf\TeX/ primitives and a few simple macros
-from \OpTeX/.
+from \OpTeX/. Additionally, the package can  be used in plain LuaTeX and
+LuaLaTeX (in a limited form), see section~\ref[user:plain+latex].
 
 User documentation (`pdfextra-doc.tex`) and technical documentation interleaved
 with source code (`pdfextra.opm`) are all typeset in this PDF file. Some
@@ -553,7 +554,7 @@ Examples:
 \render[video]{\inspic{example-image.pdf}}
 
 % we want the rendition action to have yellow border and red content
-\let\_renditionborder\Yellow
+\def\_renditionborder{1 1 0}
 \let\_renditionlinkcolor\Red
 
 To start playing the video, click \hlink[rendition::play]{\"Play"}.
@@ -674,6 +675,84 @@ You can request two page view (odd pages on the right) using
 \^`\duplexdisplay`. It is useful for more natural display of double sided
 documents. Because it may not be desirable to automatically apply this, it is
 independent of `\margins`.
+
+\label[user:plain+latex]
+\sec Usage in plain \LuaTeX/ or LuaLa\TeX/
+
+You can use this package also from plain LuaTeX by adding to your document:
+
+\begtt
+\input pdfextra
+\endtt
+
+\noindent or for LuaLa\TeX/:
+
+\begtt
+\usepackage{pdfextra}
+\endtt
+
+See the file `pdfextra-example-latex.tex` for the adaptation of the \OpTeX/
+examples to \LaTeX/.
+
+The usage of the macros described in this document is the same, but there are
+limitations:
+
+\begitems
+* {\em Color}. Where this package expects \"\OpTeX/ color" key value argument
+(e.g. `\Blue`), you have to use an RGB triplet instead (e.g. `0.0 0.0 0.0` or
+the shorter `0 0 0`).
+
+But for text color setting, you can get away with wrapping commands from
+La\TeX/'s `color` package, e.g. to customize link border/color:
+
+  \begtt
+  \sdef{_renditionlinkcolor}{\color[red]}
+  \endtt
+
+* {\em Initialization}. In \OpTeX/ you normally have to initialize hyperlinks
+with the command\nl
+`\hyperlinks<color for internal links><color for external links>`.\nl
+This is not required by this package. You can instead set the color by setting
+`\_linkcolor` (fallback for all link types), `\_ilinkcolor` / `\_elinkcolor`
+(internal / external links). E.g. if you have the \LaTeX/ `color` package
+loaded, you can get blue links like this:
+
+  \begtt
+  \sdef{_linkcolor}{\color[blue]}
+  \endtt
+
+In addition to the above this means all links will be blue except \"rendition"
+links.
+
+* {\em Openaction}. If the package `hyperref` is used, then `\openaction` will
+not work.
+
+* {\em Labels / hyperlink destinations}. \OpTeX/ uses very simple and consistent
+scheme for labels / hyperlink destinations:
+
+  \begitems
+  * `ref:<label>`     -- result of `\label[<label>]`
+  * `toc:<tocrefnum>` -- result of `\chap`/`\sec`/`\secc` titles
+  * `pg:<gpageno>`    -- created on each page with global numbering from 1
+  * `cite:<bibpart>/<bibnum>` -- bibliography references,
+  * `fnt:<gfnotenum>` -- link form text to footnote
+  * `fnf:<gfnotenum>` -- link from footnote to text
+  * `url:<url>`       -- used by `\url` or `\ulink`,
+  \enditems
+
+  Hence these labels / destinations can be used with `\hlink`, e.g. to make text
+  `page 5` a link to page 5, one can use:
+
+  \begtt
+  \hlink[pg:5]{page 5}
+  \endtt
+
+  This is not possible in plain \LuaTeX/ (no destinations are created) or
+  LuaLa\TeX/ (different and incompatible destination names). You would have to
+  create your own destinations adhering to the naming convention
+  `<type>:<arguments>` to be able to use `\hlink` as intended for some links.
+
+\enditems
 
 \chap Technical documentation
 
