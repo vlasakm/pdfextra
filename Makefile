@@ -9,9 +9,12 @@ SOURCES = \
 	examples/pdfextra-example-part.prc \
 	examples/pdfextra-example.pdf \
 	examples/pdfextra-example.tex \
+	examples/pdfextra-example-latex.tex \
 	pdfextra-doc.pdf \
 	pdfextra-doc.tex \
 	pdfextra.opm \
+	pdfextra.tex \
+	pdfextra.sty \
 	LICENSE \
 	README.md
 
