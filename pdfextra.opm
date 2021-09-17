@@ -1635,7 +1635,7 @@
   /C2W [\_directlua{
   local function normalize(x, y, z)
       local len = math.sqrt(x*x + y*y + z*z)
-      if len ~= 0 then return x/len, y/len, z/len else return 0, 0, 0 end
+      if len \csstring\~= 0 then return x/len, y/len, z/len else return 0, 0, 0 end
   end
   local function cross(ux, uy, uz, vx, vy, vz)
       return uy*vz - uz*vy, uz*vx - ux*vz, ux*vy - uy*vx
