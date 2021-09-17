@@ -43,4 +43,5 @@ examples/pdfextra-example.pdf: examples/pdfextra-example.tex \
 
 clean:
 	$(RM) -r $(TARGETS) $(ZIP_NAME) $(ZIP_PREFIX) *.pdf *.ref *.log \
-		examples/*.pdf examples/*.ref examples/*.log examples/*.js
+		examples/*.pdf examples/*.ref examples/*.log examples/*.js \
+		examples/*.aux examples/*.out
