@@ -1728,5 +1728,13 @@
 \.mimetype{mp4}{video/mp4}
 \.mimetype{webm}{video/webm}
 
+
+% more or less legacy formats
+\.mimetype{au}{audio/basic}
+\.mimetype{aiff}{audio/x-aiff}
+\.mimetype{mov}{video/quicktime}
+\.mimetype{mpg}{video/mpeg}
+\.mimetype{wmv}{video/x-ms-wmv}
+
 \_endnamespace
 \_endcode
