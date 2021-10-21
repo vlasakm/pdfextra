@@ -1,4 +1,8 @@
-% vim: tw=80
+% pdfextra package
+% Michal Vlasák <lahcim8@gmail.com>
+% https://github.com/vlasakm/pdfextra
+% Zero-Clause BSD license
+
 \_def\_pdfextra_version{0.2}
 \_codedecl \RM {Extra PDF features (v\_pdfextra_version)}
 \_namespace{pdfextra}
