@@ -743,7 +743,7 @@
 
 % file attachment
 \_def\.embeddedfiles{}
-\_def\.attach[#1]{\.isfiledefined{\.name}\_iftrue
+\_def\.attach[#1]{\.isfiledefined{#1}\_iftrue
    \.xaddto\.embeddedfiles{(#1) \.cs{filespec:#1} }\_fi
 }
 \_nspublic \attach ;
