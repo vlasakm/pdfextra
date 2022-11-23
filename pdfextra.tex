@@ -41,6 +41,7 @@
    \_else \_resetnamespace{#1}\_fi
 }
 \_def\_resetnamespace #1{%
+   \_unless \_ifx \_pkglabel\_empty \_endnamespace \_fi
    \_ea \_gdef \_csname namesp:#1\_endcsname {}%
    \_gdef \_pkglabel{_#1}%
    \_directlua{
@@ -156,13 +157,13 @@
 
 \_private \string \newtoks \romannumeral ;
 
-\_def\_optdef#1[#2]{%
-   \_def#1{\_opt={#2}\_isnextchar[{\_cs{_oA:\_string#1}}{\_cs{_oB:\_string#1}}}%
-   \_sdef{_oA:\_string#1}[##1]{\_opt={##1}\_cs{_oB:\_string#1\_nospaceafter}}%
-   \_sdef{_oB:\_string#1\_nospaceafter}%
-}
-\_def\_nospaceafter#1{\_ea#1\_romannumeral-`\.}
 \_newtoks\_opt
+\_def\_optdef#1[#2]{%
+   \_def#1{\_opt={#2}\_isnextchar[{\_cs{_oA:\_csstring#1}}{\_cs{_oB:\_csstring#1}}}%
+   \_sdef{_oA:\_csstring#1}[##1]{\_opt={##1}\_cs{_oB:\_csstring#1\_nospaceafter}}%
+   \_sdef{_oB:\_csstring#1\_nospaceafter}%
+}
+\_def\_nospaceafter#1{\_ea#1\_romannumeral-`\.\_noexpand}
 
 \_private \noexpand \catcode \toksapp ;
 
@@ -172,7 +173,7 @@
 \_catcode`!=3 \_catcode`?=3
 \_def\_replstring #1#2#3{%  \replstring #1{stringA}{stringB}
    \_long\_def\_replacestringsA##1#2{\_tmptoks{##1}\_replacestringsB}%
-   \_long\_def\_replacestringsB##1#2{\_ifx!##1\_relax \_else \_toksapp\_tmptoks{#3##1}%
+   \_long\_def\_replacestringsB##1#2{\_ifx!##1\_relax \_else \_tmptoks\_ea{\_the\_tmptoks#3##1}%
                                      \_ea\_replacestringsB\_fi}%
    \_ea\_replacestringsA #1?#2!#2%
    \_long\_def\_replacestringsA##1?{\_tmptoks{##1}\_edef#1{\_the\_tmptoks}}%
@@ -233,16 +234,23 @@
    \_immediate\_openout\_reffile={\_jobname.ref}\_relax
    \_gdef\_wref ##1##2{\_write\_reffile{\_bslash\_csstring##1##2}}%
    \_immediate\_write\_reffile {\_pcent\_pcent\_space pdfextra - REF file}%
+   \_ifx\_refdecldata\_empty \_else \_refdeclwrite \_fi
    \_gdef\_openref{}%
 }
 \_def\_ewref #1#2{\_edef\_ewrefA{#2}\_ea\_wref\_ea#1\_ea{\_ewrefA}}
 
 \_private \ifnum ;
 
-\_def\_refdecl{\_bgroup \_catcode`\#=12 \_refdeclA}
-\_def\_refdeclA #1{\_egroup\_openref
-   \_immediate\_write\_reffile {\_pcent\_space \_string \refdecl:}%
-   \_immediate\_write\_reffile {\_detokenize{#1}}%
+\_def\_refdecldata{}
+\_def\_refdecl{\_bgroup \_catcode`\#=12 \_catcode`\\=12 \_catcode`\ =12 \_refdeclA}
+\_def\_refdeclA#1{\_egroup
+   \_ifx\_refdecldata\_empty\_else \_global\_addto\_refdecldata{^^J}\_fi
+   \_global\_addto\_refdecldata{#1}%
+   \_ifx\_openref\_empty \_refdeclwrite \_fi
+}
+\_def\_refdeclwrite{%
+   \_immediate\_write\_reffile{\_pcent\_space \_string\refdecl:^^J\_detokenize\_ea{\_refdecldata}}%
+   \_gdef\_refdecldata{}%
 }
 
 %
