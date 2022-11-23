@@ -275,7 +275,7 @@
 % modified
 \_def\_pdfunidef#1#2{%
     \_edef\_tmp{#2}%
-    \_def#1{\_directlua{
+    \_edef#1{\_directlua{
     local str = token.scan_string()
     local out = { "<FEFF" }
     for _, c in utf8.codes(str) do
