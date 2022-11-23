@@ -1728,6 +1728,8 @@
 \.mimetype{mp4}{video/mp4}
 \.mimetype{webm}{video/webm}
 
+\.mimetype{tex}{application/x-tex}
+
 
 % more or less legacy formats
 \.mimetype{au}{audio/basic}
