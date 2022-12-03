@@ -4,7 +4,8 @@
 % Zero-Clause BSD license
 
 \_def\_pdfextra_version{0.3}
-\_codedecl \RM {Extra PDF features (v\_pdfextra_version)}
+\_def\_pdfextra_date{2022-12-03}
+\_codedecl \RM {Extra PDF features <v\_pdfextra_version, \_pdfextra_date>}
 \_namespace{pdfextra}
 
    \_doc
