@@ -3,7 +3,7 @@
 % https://github.com/vlasakm/pdfextra
 % Zero-Clause BSD license
 
-\_def\_pdfextra_version{0.2}
+\_def\_pdfextra_version{0.3}
 \_codedecl \RM {Extra PDF features (v\_pdfextra_version)}
 \_namespace{pdfextra}
 
